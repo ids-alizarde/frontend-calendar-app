@@ -1,8 +1,7 @@
-import moment from 'moment';
 import { Constants } from '../services/Constants';
 
-const initialState = {
-    events: [{
+
+    /* {
         id: new Date().getTime(),
         title: 'Cumpleaños del jefe',
         start: moment().toDate(),
@@ -13,7 +12,10 @@ const initialState = {
             id: '1234',
             name: 'Emmanuel'
         }
-}],
+    } */
+
+const initialState = {
+    events: [],
     activeEvent: null
 };
 
@@ -56,6 +58,18 @@ export const calendarReducer = ( state = initialState, action ) => {
                 events: state.events.filter(
                     e => ( e.id !== state.activeEvent.id )
                 ),
+                activeEvent: null
+            }
+        
+        case Constants.eventLoaded:
+            return {
+                ...state,
+                events: [ ...action.payload ]
+            }
+
+        case Constants.eventCleaned:
+            return {
+                events: [],
                 activeEvent: null
             }
     

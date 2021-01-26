@@ -8,7 +8,7 @@ import { useState } from 'react';
 import Swal from 'sweetalert2';
 import { useDispatch, useSelector } from 'react-redux';
 import { uiCloseModal } from '../../actions/ui';
-import { eventAddNew, eventClearActiveEvent, eventUpdated } from '../../actions/calendarEvents';
+import { eventClearActiveEvent, eventStartAddNew, eventStartUpdate } from '../../actions/calendarEvents';
 
 const customStyles = {
     content : {
@@ -26,14 +26,14 @@ Modal.setAppElement('#root')
 const now = moment().minutes( 0 ).seconds( 0 ).add( 1, 'hours' );
 const nowPlus1 = now.clone().add( 1, 'hours' );
 
-const initEvent = {
+let initEvent = {
     title: '',
     notes: '',
     start: now.toDate(),
     end: nowPlus1.toDate()
 }
 
-export const CalendarModal = ( active ) => {
+export const CalendarModal = ( action ) => {
 
     const [ startDate, setStartDate ] = useState( now.toDate() );
     const [ endDate, setEndDate ] = useState( nowPlus1.toDate() );
@@ -49,22 +49,24 @@ export const CalendarModal = ( active ) => {
 
     useEffect(() => {
 
-        if ( active ) {
-
-            setStartDate( active.start );
-            setEndDate( active.end );
-
-        } 
-
+        setTitleValid( true );
+        
         if ( activeEvent ) {
 
+            setStartDate( activeEvent.start );
+            setEndDate( activeEvent.end );
             setFormValues( activeEvent );
+
+            
         } else {
 
+            setStartDate( initEvent.start );
+            setEndDate( initEvent.end );
             setFormValues( initEvent );
+
         }
 
-    }, [ activeEvent, setFormValues, active ])
+    }, [ activeEvent, setFormValues ])
 
     const handleInputChange = ({ target }) => {
 
@@ -99,18 +101,19 @@ export const CalendarModal = ( active ) => {
 
         if ( activeEvent ) {
 
-            dispatch( eventUpdated( formValues ) );
+            if ( action.action === 'select' ) {
+
+                dispatch( eventStartAddNew( formValues ));
+            } else {
+
+                
+                dispatch( eventStartUpdate( formValues ) );
+            }
+
 
         } else {
 
-            dispatch( eventAddNew({
-                ...formValues,
-                id: new Date().getTime(),
-                user: {
-                    id: '4234234234',
-                    name: 'Aldo'
-                }
-            }));
+            dispatch( eventStartAddNew( formValues ));
         }
 
         setTitleValid( true );
